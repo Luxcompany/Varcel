@@ -1,10 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+IM OKAY WITH HARDCODING LEXEMES - THEY SHOULDN'T BE CHANGED ANYWAYS
+*/
+const char seperators[] = " \n\t()[],";
+
+const char operators[] =
+"+ += ++ - -= -- * *= ** / /= % %= = == "
+"> >= >> < <= << & && | || ^ ^^ ~ ! != "
+".. @ ? :";
+
+const char keywords[] =
+"arr sizeof const mut freeze uses hidden "
+"strict istype alias real int lambda amb string ";
+
 typedef enum {
     nil = -1,
     identifier,
-    keyWord,
+    keyword,
     operator,
     seperator,
     literal
@@ -16,23 +30,24 @@ typedef struct {
 } Token;
 
 /**
- * @brief Parse a string into a single token
- * @param str string to parse
- * @returns pointer to a token
+ * @brief compare a subsection of str1 to all of str2 - used in tokenize_string
  */
-Token *Token_parse(const char* str){
-    static Token t;
-
+static int str_contains(const char* str1, int str1Offset, int str1MaxChars, const char* str2, int treatSpaceAsNUL){
+    for(int i = 0; str2[i] != '\0' && (str2[i] != ' ' || treatSpaceAsNUL); ++i)
+        if(str1[str1Offset + i] != str2[i] || i > str1MaxChars || str1[str1Offset + i] == '\0')
+            return 0;
+    return 1;
 }
 
 /**
- * @brief compare a subsection of str1 to all of str2 - used in tokenize_string
+ * @brief Parse a string into a single token
+ * @param str string to parse
+ * @returns pointer to a token or NULL if token can't be parsed
  */
-static int str_contains(const char* str1, int str1Offset, const char* str2){
-    for(int i = 0; str2[i] != '\0'; ++i)
-        if(str1[str1Offset + i] != str2[i] || str1[str1Offset + i] == '\0')
-            return 0;
-    return 1;
+static Token *token_parse(const char* srcStr, int curIndex, int curOffset){
+    static Token t;
+    //TODO write token parsing algorithm -- check srcStr from curIndex to curOffset among lexemes
+    return NULL;
 }
 
 /**
@@ -43,7 +58,17 @@ static int str_contains(const char* str1, int str1Offset, const char* str2){
  * @param srcTokens pointer to int for writing the total number of processed tokens
  */
 void tokenize_string(const char *srcStr, int srcStrLength, Token *srcTokens, int *numTokens){
-        
+    Token *curToken;
+    int curIndex = 0;   //index of begining of current token
+    int curOffset = 0;  //offset of index to read srcStr from curIndex to curOffset
+    for(; curOffset < srcStrLength; ++curOffset){
+        if(curToken = token_parse(srcStr, curIndex, curOffset)){
+            //TODO  append curToken to srcTokens & update numTokens (maybe use numTokens to keep track)
+            curIndex = curOffset;   //start scanning from end of last token
+        }else{
+            ++curOffset;
+        }
+    }
 }
 
 /**

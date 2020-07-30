@@ -11,6 +11,55 @@ comment
 
 /*
 
+catagorized lexemes:
+
+//identifier
+names of variables/lambdas/etc
+
+//literal
+numbers and strings -- 1.3  100 "Hello world"
+
+//seperators
+whitespace
+[]
+()
+,
+
+//operators
++   +=  ++
+-   -=  --
+*   *=  **
+/   /= 
+%   %=
+
+=       ==
+>   >=  >>
+<   <=  <<
+&       &&
+|       ||
+^       ^^
+~
+!   !=
+
+        ..
+@
+
+?           :
+
+//keywords (including types)
+arr     sizeof
+const   mut     freeze
+uses    hidden
+strict
+istype  alias
+
+real    int 
+lambda 
+amb
+string
+
+--------------------------------------
+
 operators, seperators, syntax, etc (with uses):
 
 //typical math operators
@@ -77,7 +126,7 @@ arr		//specifies typename to the left is an array of that type -- real arr
 
 sizeof	//evaluates to number of elements in following array
 
-isType	//evaluates to 1 if an expression is of specified type, 0 otherwise -- var is real
+istype	//evaluates to 1 if an expression is of specified type, 0 otherwise -- var is real
 
 const	//makes following lexeme immutable -- const var = 4
 mut		//makes following lexeme mutable -- mut a = [1,2,3]
@@ -122,6 +171,7 @@ decleration and execution of lambdas:
 lam[params] = body		//declares lam as the evaluation of body with parameters params where body has access to params
 lam[params..] = body	//declares lam as a multiple parameter lambda where params is treated as an array in body -- params[1] is second parameter (because arrays begin at 0)
 //NOTE: type optional before parameter name  (useful for avoiding bugs)
+//NOTE: RESERVED FUNCTION NAMES: underscore, "operator" followed by an operator
 
 //execution
 lam [params]			//executes lam with params as parameters
@@ -135,6 +185,9 @@ lam[real a, real arr b] = body
 operatorOp[leftOperand, rightOperand] = body
 //example overloading plus:
 operator+[a,b] = a*b
+
+//anonymous lambda
+_[params] = body
 
 ----------------------------
 
@@ -277,7 +330,7 @@ toPointArr: [(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8)]
 toPointArr_inPlace: [(1,2),(2,4),(5,6),(7,8)]
 
 
-/*integration with c++? (via macros) (captures via shared memory)
+/*integration with c/c++? (via macros) (captures via shared memory)
 
 --cpp code--
 
