@@ -40,7 +40,7 @@ v_thread program = v_execute("./file/src.vl"); //start program
 
 //...
 
-//get value of "varName" in program, and store it in myVar
+//get handle of "varName" in program, and store it in myVar
 v_var myVar = v_var_get("varName"); 
 
 //print myVar if it's a string
