@@ -1,6 +1,6 @@
 # ![logo](misc/vlogo.png)
 
-*note: Varcel is still in alpha; some features don't exist yet.*
+*note: Varcel is still in alpha; most features don't exist yet.*
 
 ## What's Varcel?
 Varcel is an open source, functional flavored, graphics-focused programmng language geared towards UI design, data visualization, and elegant data processing. As of now Varcel can be contained in **.vl** or **.varcel** files, and compiled via the command line (or an IDE-like application in the future that'll include debuging features). Varcel is first transpiled to C, then compiled into machine code by a regular C compiler (TCC used by default). Transpiling to c makes Varcel more platform independent (as any platform with a c compiler will also be able to compile Varcel), and allows compiled applications to run faster than they would if Varcel was an interpreted language.
