@@ -52,4 +52,4 @@ if(v_check_type(myVar, v_string))
 v_close(program); //ends program
 ```
 #
-Feel free to help out and make a suggestion, or (even better) a pull request!
+Feel free to help out and make a suggestion (via issues), or (even better) a pull request!
