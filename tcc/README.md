@@ -1,1 +1,1 @@
-# TCC isn't mine: you can check out [tcc here](https://bellard.org/tcc/)!
+# [TCC isn't mine](https://bellard.org/tcc/)!
