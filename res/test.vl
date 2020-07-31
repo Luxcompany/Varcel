@@ -1,2 +1,4 @@
+v[x..]=x
+
 test=2
 puts(test)

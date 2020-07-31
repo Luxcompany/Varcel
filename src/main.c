@@ -4,16 +4,21 @@
 /*
 IM OKAY WITH HARDCODING LEXEMES - THEY SHOULDN'T BE CHANGED ANYWAYS
 */
-const char seperators[] = " \n\t()[],";
+const char whitespaceChars[] = " \n\t";
 
-const char operators[] =
-"+ += ++ - -= -- * *= ** / /= % %= = == "
-"> >= >> < <= << & && | || ^ ^^ ~ ! != "
-".. @ ? :";
+const char *seperators[] = {"(", ")", "[", "]", ","};
 
-const char keywords[] =
-"arr sizeof const mut freeze uses hidden "
-"strict istype alias real int lambda amb string ";
+const char *operators[] = {
+"+", "+=", "++", "-", "-=", "--", "*", "*=", "**", "/", "/=", "%", "%=", "=", "==",
+">", ">=", ">>", "<", "<=", "<<", "&", "&&", "|", "||", "^", "^^", "~", "!", "!=",
+"..", "@", "?", ":"
+};
+
+const char *keywords[] = {
+"arr", "sizeof", "const", "mut", "freeze", "uses", "hidden",
+"strict", "istype", "alias", "real", "int", "lambda", "amb",
+"string"
+};
 
 typedef enum {
     nil = -1,
@@ -26,7 +31,7 @@ typedef enum {
 
 typedef struct {
     TokenType type;
-    const char *value;
+    const char * contents;
 } Token;
 
 /**
@@ -41,10 +46,12 @@ static int str_contains(const char* str1, int str1Offset, int str1MaxChars, cons
 
 /**
  * @brief Parse a string into a single token
- * @param str string to parse
+ * @param srcStr pointer to begining of source string
+ * @param curIndex offset of begining of current token to analyze
+ * @param curOffset pointer to offset of end of current token to analyze
  * @returns pointer to a token or NULL if token can't be parsed
  */
-static Token *token_parse(const char* srcStr, int curIndex, int curOffset){
+static Token *token_parse(const char* srcStr, int curIndex, int *curOffset){
     static Token t;
     //TODO write token parsing algorithm -- check srcStr from curIndex to curOffset among lexemes
     return NULL;
@@ -62,7 +69,7 @@ void tokenize_string(const char *srcStr, int srcStrLength, Token *srcTokens, int
     int curIndex = 0;   //index of begining of current token
     int curOffset = 0;  //offset of index to read srcStr from curIndex to curOffset
     for(; curOffset < srcStrLength; ++curOffset){
-        if(curToken = token_parse(srcStr, curIndex, curOffset)){
+        if(curToken = token_parse(srcStr, curIndex, &curOffset)){
             //TODO  append curToken to srcTokens & update numTokens (maybe use numTokens to keep track)
             curIndex = curOffset;   //start scanning from end of last token
         }else{
@@ -96,6 +103,12 @@ void tokenize_file(const char *srcFilepath, Token *srcTokens, int *numTokens){
     }
 
     fclose(srcFile);
+}
+
+void token_arr_print(Token *tokens, int numTokens){
+    const char *typeNames[] = {"Nil", "Identifier", "Keyword", "Operator", "Seperator", "Literal"};
+    for(int i = 0; i < numTokens; ++i)
+        printf("Type: %s    Contents: %s\n", typeNames[tokens[i].type+1], tokens[i].contents);
 }
 
 int main(){
