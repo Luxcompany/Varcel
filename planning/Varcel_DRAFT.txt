@@ -7,6 +7,13 @@ multiline
 comment
 */
 
+/*
+COMPILER MESSAGE FORMAT:
+[ERR] message\n
+[WARNING] message\n
+[INFO] message\n
+*/
+
 //file extentions      .VL     .VARCEL     VL prefered
 
 /*

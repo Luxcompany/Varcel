@@ -45,46 +45,70 @@ static int str_contains(const char* str1, int str1Offset, int str1MaxChars, cons
 }
 
 /**
- * @brief Parse a string into a single token
- * @param srcStr pointer to begining of source string
- * @param curIndex offset of begining of current token to analyze
- * @param curOffset pointer to offset of end of current token to analyze
- * @returns pointer to a token or NULL if token can't be parsed
+ * @brief Appends token to end of srcTokens; expands srcTokens if not big enough - used in tokenize_string
+ * @param srcTokens pointer to array of tokens
+ * @param numTokens pointer to int for updating number of tokens
+ * @param numPossibleTokens pointer to int for updating size of array
+ * @return pointer to first empty token in srcTokens, or NULL
  */
-static Token *token_parse(const char* srcStr, int curIndex, int *curOffset){
-    static Token t;
-    //TODO write token parsing algorithm -- check srcStr from curIndex to curOffset among lexemes
-    return NULL;
+static Token *token_append(Token **srcTokens, int *numTokens, int *numPossibleTokens){
+    if( (*numTokens)+1 > *numPossibleTokens ){
+        //DOUBLE SIZE OF srcTokens
+        int newSize = (*numPossibleTokens)*2;
+        Token *newSrcTokens = realloc(*srcTokens, newSize*sizeof(Token));
+        //ADD ONE TO SIZE OF srcTokens IF DOUBLING FAILS
+        if(!newSrcTokens){
+            newSize = (*numPossibleTokens) + 1;
+            newSrcTokens = realloc(*srcTokens, newSize*sizeof(Token));
+
+            if(!newSrcTokens){
+                fprintf(stderr, "[ERR] CAN'T EXPAND SRC TOKENS TO SIZE OF %i TOKENS\n", *numPossibleTokens);
+                return NULL;
+            }
+        }
+
+        printf("[INFO] Expanded numPossibleTokens to %i\n", newSize);
+
+        *numPossibleTokens = newSize;
+        *srcTokens = newSrcTokens;
+    }
+
+    //Return pointer to first empty token in srcTokens, and increment token counter
+    ++(*numTokens);
+    return &((*srcTokens)[(*numTokens)-1]);
 }
 
 /**
  * @brief Parse a string into tokens
  * @param srcStr input string to parse
  * @param srcStrLength Length of input string (number of chars)
- * @param srcTokens pointer to memory in heap created via malloc
+ * @param srcTokens pointer to NULL
  * @param srcTokens pointer to int for writing the total number of processed tokens
  */
-void tokenize_string(const char *srcStr, int srcStrLength, Token *srcTokens, int *numTokens){
-    Token *curToken;
+void tokenize_string(const char *srcStr, int srcStrLength, Token **srcTokens, int *numTokens){
+    int numPossibleTokens = 4;  //srcTokens can store 4 tokens without expanding
+    *numTokens = 0;
+    *srcTokens = malloc(numPossibleTokens*sizeof(Token));
+    if(!srcTokens) fprintf(stderr, "[ERR] CAN'T ALLOCATE INITIAL TOKENS\n");
+
+    Token *t = token_append(srcTokens, numTokens, &numPossibleTokens); t->type = nil; t->contents = "first";
+    
     int curIndex = 0;   //index of begining of current token
     int curOffset = 0;  //offset of index to read srcStr from curIndex to curOffset
     for(; curOffset < srcStrLength; ++curOffset){
-        if(curToken = token_parse(srcStr, curIndex, &curOffset)){
-            //TODO  append curToken to srcTokens & update numTokens (maybe use numTokens to keep track)
-            curIndex = curOffset;   //start scanning from end of last token
-        }else{
-            ++curOffset;
-        }
+
     }
+
+    printf("[INFO] Finished parsing string of %i tokens, and %i possible tokens\n", *numTokens, numPossibleTokens);
 }
 
 /**
  * @brief Parse a file into tokens
  * @param srcFile input file to parse
- * @param srcTokens pointer to memory in heap created via malloc
+ * @param srcTokens pointer to NULL
  * @param srcTokens pointer to int for writing the total number of processed tokens
  */
-void tokenize_file(const char *srcFilepath, Token *srcTokens, int *numTokens){
+void tokenize_file(const char *srcFilepath, Token **srcTokens, int *numTokens){
     FILE *srcFile;
     srcFile = fopen(srcFilepath, "r");  //open source file for reading
 
@@ -99,12 +123,18 @@ void tokenize_file(const char *srcFilepath, Token *srcTokens, int *numTokens){
         tokenize_string(srcStr, srcSize, srcTokens, numTokens); //feed source string into tokenization function
         free(srcStr);
     }else{
-        fprintf(stderr, "[ERR] CAN'T OPEN FILE: %s", srcFilepath);  //print error if file cant be opened
+        fprintf(stderr, "[ERR] CAN'T OPEN FILE: %s\n", srcFilepath);  //print error if file cant be opened
     }
 
     fclose(srcFile);
 }
 
+/**
+ * @brief print contents of tokens to stdout.
+ * PRECONDITION: tokens up to numTokens is initialized with tokens
+ * @param tokens pointer to begnining of tokens in memory
+ * @param numTokens number of consecutive tokens
+ */
 void token_arr_print(Token *tokens, int numTokens){
     const char *typeNames[] = {"Nil", "Identifier", "Keyword", "Operator", "Seperator", "Literal"};
     for(int i = 0; i < numTokens; ++i)
@@ -112,9 +142,12 @@ void token_arr_print(Token *tokens, int numTokens){
 }
 
 int main(){
-    Token *srcTokens = malloc(1);
+    Token *srcTokens = NULL;
     int numTokens;
-    tokenize_file("./res/test.vl", srcTokens, &numTokens);
+    tokenize_file("./res/test.vl", &srcTokens, &numTokens);
+
+    printf("NUM TOKENS: %i\n", numTokens);
+    token_arr_print(srcTokens, numTokens);
 
     free(srcTokens);
 
