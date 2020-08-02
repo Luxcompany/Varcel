@@ -6,7 +6,9 @@ IM OKAY WITH HARDCODING LEXEMES - THEY SHOULDN'T BE CHANGED ANYWAYS
 */
 const char whitespaceChars[] = " \n\t";
 
-const char *seperators[] = {"(", ")", "[", "]", ","};
+const char specialChars[] = "()[],+-*/%=><&|^~!.@?:\"";
+
+const char *seperators[] = {"(", ")", "[", "]", ",", "."};
 
 const char *operators[] = {
 "+", "+=", "++", "-", "-=", "--", "*", "*=", "**", "/", "/=", "%", "%=", "=", "==",
@@ -21,7 +23,7 @@ const char *keywords[] = {
 };
 
 typedef enum {
-    nil = -1,
+    nilType = -1,
     identifier,
     keyword,
     operator,
@@ -35,31 +37,31 @@ typedef struct {
 } Token;
 
 /**
- * @brief compare a subsection of str1 to all of str2 - used in tokenize_string
+ * @brief compare a subsection of str1 to all of str2 - used in token_tokenize_string
  */
-static int str_contains(const char* str1, int str1Offset, int str1MaxChars, const char* str2, int treatSpaceAsNUL){
-    for(int i = 0; str2[i] != '\0' && (str2[i] != ' ' || treatSpaceAsNUL); ++i)
+static int str_compare(const char* str1, int str1Offset, int str1MaxChars, const char* str2){
+    for(int i = 0; str2[i] != '\0'; ++i)
         if(str1[str1Offset + i] != str2[i] || i > str1MaxChars || str1[str1Offset + i] == '\0')
             return 0;
     return 1;
 }
 
 /**
- * @brief Appends token to end of srcTokens; expands srcTokens if not big enough - used in tokenize_string
- * @param srcTokens pointer to array of tokens
+ * @brief Appends token to end of srcTokenArr; expands srcTokenArr if not big enough - used in token_tokenize_string
+ * @param srcTokenArrPtr pointer to array of tokens
  * @param numTokens pointer to int for updating number of tokens
  * @param numPossibleTokens pointer to int for updating size of array
- * @return pointer to first empty token in srcTokens, or NULL
+ * @return pointer to first empty token in srcTokenArr, or NULL
  */
-static Token *token_append(Token **srcTokens, int *numTokens, int *numPossibleTokens){
+static Token *token_append(Token **srcTokenArrPtr, int *numTokens, int *numPossibleTokens){
     if( (*numTokens)+1 > *numPossibleTokens ){
-        //DOUBLE SIZE OF srcTokens
+        //DOUBLE SIZE OF srcTokenArr
         int newSize = (*numPossibleTokens)*2;
-        Token *newSrcTokens = realloc(*srcTokens, newSize*sizeof(Token));
-        //ADD ONE TO SIZE OF srcTokens IF DOUBLING FAILS
+        Token *newSrcTokens = realloc(*srcTokenArrPtr, newSize*sizeof(Token));
+        //ADD ONE TO SIZE OF srcTokenArr IF DOUBLING FAILS
         if(!newSrcTokens){
             newSize = (*numPossibleTokens) + 1;
-            newSrcTokens = realloc(*srcTokens, newSize*sizeof(Token));
+            newSrcTokens = realloc(*srcTokenArrPtr, newSize*sizeof(Token));
 
             if(!newSrcTokens){
                 fprintf(stderr, "[ERR] CAN'T EXPAND SRC TOKENS TO SIZE OF %i TOKENS\n", *numPossibleTokens);
@@ -70,33 +72,33 @@ static Token *token_append(Token **srcTokens, int *numTokens, int *numPossibleTo
         printf("[INFO] Expanded numPossibleTokens to %i\n", newSize);
 
         *numPossibleTokens = newSize;
-        *srcTokens = newSrcTokens;
+        *srcTokenArrPtr = newSrcTokens;
     }
 
-    //Return pointer to first empty token in srcTokens, and increment token counter
+    //Return pointer to first empty token in srcTokenArr, and increment token counter
     ++(*numTokens);
-    return &((*srcTokens)[(*numTokens)-1]);
+    return &((*srcTokenArrPtr)[(*numTokens)-1]);
 }
 
 /**
  * @brief Parse a string into tokens
  * @param srcStr input string to parse
  * @param srcStrLength Length of input string (number of chars)
- * @param srcTokens pointer to NULL
- * @param srcTokens pointer to int for writing the total number of processed tokens
+ * @param srcTokenArrPtr pointer to NULL
+ * @param numTokens pointer to int for writing the total number of processed tokens
  */
-void tokenize_string(const char *srcStr, int srcStrLength, Token **srcTokens, int *numTokens){
-    int numPossibleTokens = 4;  //srcTokens can store 4 tokens without expanding
+void token_tokenize_string(const char *srcStr, int srcStrLength, Token **srcTokenArrPtr, int *numTokens){
+    int numPossibleTokens = 4;  //srcTokenArr can store 4 tokens without expanding
     *numTokens = 0;
-    *srcTokens = malloc(numPossibleTokens*sizeof(Token));
-    if(!srcTokens) fprintf(stderr, "[ERR] CAN'T ALLOCATE INITIAL TOKENS\n");
+    *srcTokenArrPtr = malloc(numPossibleTokens*sizeof(Token));
+    if(!srcTokenArrPtr) fprintf(stderr, "[ERR] CAN'T ALLOCATE INITIAL TOKENS\n");
 
-    Token *t = token_append(srcTokens, numTokens, &numPossibleTokens); t->type = nil; t->contents = "first";
+    Token *t = token_append(srcTokenArrPtr, numTokens, &numPossibleTokens); t->type = nilType; t->contents = "first";
     
     int curIndex = 0;   //index of begining of current token
     int curOffset = 0;  //offset of index to read srcStr from curIndex to curOffset
     for(; curOffset < srcStrLength; ++curOffset){
-
+        
     }
 
     printf("[INFO] Finished parsing string of %i tokens, and %i possible tokens\n", *numTokens, numPossibleTokens);
@@ -105,10 +107,10 @@ void tokenize_string(const char *srcStr, int srcStrLength, Token **srcTokens, in
 /**
  * @brief Parse a file into tokens
  * @param srcFile input file to parse
- * @param srcTokens pointer to NULL
- * @param srcTokens pointer to int for writing the total number of processed tokens
+ * @param srcTokenArr pointer to NULL
+ * @param srcTokenArr pointer to int for writing the total number of processed tokens
  */
-void tokenize_file(const char *srcFilepath, Token **srcTokens, int *numTokens){
+void token_tokenize_file(const char *srcFilepath, Token **srcTokenArr, int *numTokens){
     FILE *srcFile;
     srcFile = fopen(srcFilepath, "r");  //open source file for reading
 
@@ -120,7 +122,7 @@ void tokenize_file(const char *srcFilepath, Token **srcTokens, int *numTokens){
         fseek(srcFile, 0, SEEK_SET);    
         fread(srcStr, 1, srcSize, srcFile); //read source file contents into source string
 
-        tokenize_string(srcStr, srcSize, srcTokens, numTokens); //feed source string into tokenization function
+        token_tokenize_string(srcStr, srcSize, srcTokenArr, numTokens); //feed source string into tokenization function
         free(srcStr);
     }else{
         fprintf(stderr, "[ERR] CAN'T OPEN FILE: %s\n", srcFilepath);  //print error if file cant be opened
@@ -137,19 +139,20 @@ void tokenize_file(const char *srcFilepath, Token **srcTokens, int *numTokens){
  */
 void token_arr_print(Token *tokens, int numTokens){
     const char *typeNames[] = {"Nil", "Identifier", "Keyword", "Operator", "Seperator", "Literal"};
+    printf("NUM TOKENS: %i:\n", numTokens);
     for(int i = 0; i < numTokens; ++i)
         printf("Type: %s    Contents: %s\n", typeNames[tokens[i].type+1], tokens[i].contents);
 }
 
 int main(){
-    Token *srcTokens = NULL;
+    Token *srcTokenArr = NULL;
+
     int numTokens;
-    tokenize_file("./res/test.vl", &srcTokens, &numTokens);
+    token_tokenize_file("./res/test.vl", &srcTokenArr, &numTokens);
 
-    printf("NUM TOKENS: %i\n", numTokens);
-    token_arr_print(srcTokens, numTokens);
+    token_arr_print(srcTokenArr, numTokens);
 
-    free(srcTokens);
+    free(srcTokenArr);
 
     return 0;
 }

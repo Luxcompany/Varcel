@@ -1,0 +1,58 @@
+LEXER               
+
+--------------------------
+
+stream types
+    identifier - continue until special char or whitespace
+    operator - 
+    seperator - read consecutive chars until non seperator
+    num - continue until special char (except .) or whitespace
+    str - continue until "
+
+--------------------------
+
+// var = 1 //
+
+v
+va
+var
+var=
+=1
+1(EOF)
+
+// a1=[1,[2,3]] //
+
+a                   stream: identifier
+a1
+a1=                 stream: operator
+    identifier: a1
+
+=[                  stream: seperator
+    operator: =
+
+[1                  stream: num
+    seperator: [
+
+1,                  stream: seperator
+    literal: 1
+
+,[
+,[2                 stream: num
+    seperator: ,
+    seperator: [
+
+2,                  stream: seperator
+    literal: 2
+
+,3                  stream: num
+    seperator: ,
+
+3]                  stream: seperator
+    literal: 3
+
+]]
+]](EOF)             end of file
+    seperator: ]
+    seperator: ]
+
+

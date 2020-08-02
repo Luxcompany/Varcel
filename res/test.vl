@@ -1,4 +1,191 @@
+//LEXER (ended up not working)
+
 v[x..]=x
 
-test=2
-puts(test)
+/*stepping through above
+
+v                   continue - stream type init: identifier
+v[                  stop - stream type changed: seperator
+    identifier: v
+
+[x                  stop - stream type changed: identifier
+    seperator: [
+
+x.                  stop - stream type changed: CHECK NEXT------|
+    identifier: x                                               |
+                                                                |
+..                  continue - stream type checked: operator----|
+..]                 stop - stream type changed: seperator
+    operator: ..
+
+]=                  stop - stream type changed: operator
+    seperator: ]
+
+=x                  stop - stream type changed: identifier
+    operator: =
+
+x\EOF               stop - end of file
+    identifier: x
+
+done
+
+*/
+
+v [ x .. ] = x
+
+/*stepping through above
+
+v                   continue - stream type init: identifier
+v_                  stop - identifier + whitespace
+    identifier: v
+
+_[                  stop - stream type changed: seperator
+    ignore whitespace
+
+[_                  continue
+[_x                 stop - stream type changed: identifier
+    seperator: [
+
+x_                  stop - identifier + whitespace
+    identifier: x
+
+_.                  stop - stream type changed: CHECK NEXT----|
+    ignore whitespace                                         |
+                                                              |
+..                  continue - stream type checked: operator--|
+.._                 continue
+.._]                stop - stream type changed: seperator
+    operator: ..
+
+]_                  continue
+]_=                 stop - stream type changed: operator
+    seperator: ]
+
+=_                  continue
+=_x                 stop - stream type changed: identifier
+    operator: =
+
+x\EOF               stop - end of file
+    identifier: x
+
+done
+
+*/
+
+hidden appendCommas[v] = for v@i: concat[v@i, ","]
+
+/*stepping through above
+
+h                   continue - stream type init: identifier
+...                 
+hiden               continue
+hidden_             stop - identifier + whitespace
+    keyword: hidden
+
+_a                  continue
+...
+_appendCommas       continue
+_appendCommas[      stop - stream type changed: seperator
+    identifier: appendCommas
+
+[v                  stop - stream type changed: identifier
+    seperator: [
+
+v]                  stop - stream type changed: seperator
+    identifier: v
+
+]_                  continue
+]_=                 stop - stream type changed: operator
+    seperator: ]
+
+=_                  continue
+=_f                 stop - stream type changed: identifier
+    operator: =
+
+fo                  continue
+for                 continue
+for_                stop: identifier + whitespace
+    keyword: for
+
+_v
+_v@                 stop - stream type changed: operator
+    identifier: v
+
+@i                  stop - stream type changed: identifier
+    operator: @
+
+i:                  stop - stream type changed: operator
+    identifier: i
+
+:_                  continue
+:_c                 stop - stream type changed: identifier
+    operator: :
+
+co                  continue
+...
+concat              continue
+concat[             stop - stream type changed: seperator
+    identifier: concat
+
+[v                  stop - stream type changed: identifier
+    seperator: [
+
+v@                 stop - stream type changed: operator
+    identifier: v
+
+@i                  stop - stream type changed: identifier
+    operator: @
+
+i,                  stop - stream type changed: seperator
+    identifier: i
+
+,_                  continue
+,_"                 stop - stream type changed: literalStr
+    operator: ,
+
+",                  continue
+","                 stop - stream type changed: CHECK NEXT-----|
+    literal: ","                                               |
+                                                               |
+]                   continue - stream type checked: seperator--|
+]\EOF               stop - end of file
+    seperator: ]
+
+done
+
+*/
+
+b=2
+a1=[1,[2,3]]
+
+/*stepping through above
+
+b                   continue - stream type init: identifier
+b=                  stop - stream type changed: operator
+    identifier: b
+
+=2                  stop - stream type changed: literalNum
+    operator: =
+
+2\n                 stop - literalNum + whitespace
+    literal: 2
+
+\na                 stop - stream type changed
+    ignore whitespace       
+
+a1                  continue
+a1=                 stop - stream type changed: operator
+    identifier: a1
+
+=[                  stop - stream type changed: seperator
+    operator: =
+
+[1                  stop - stream type changed: literalNum
+    seperator: [
+
+1,                  stop - stream type changed: seperator
+    literal: 1
+
+,[                  
+
+*/
