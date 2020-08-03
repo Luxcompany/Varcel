@@ -1,58 +1,62 @@
-LEXER               
+LEXER
 
---------------------------
+-------------------------
 
-stream types
-    identifier - continue until special char or whitespace
-    operator - 
-    seperator - read consecutive chars until non seperator
-    num - continue until special char (except .) or whitespace
-    str - continue until "
+TYPE CHANGE OR END OF FILE TRIGGERS UNIT TOKENIZATION
+    parse string from cur to offset-1
+    cur = offset-1
 
---------------------------
+Token analysis type details
 
-// var = 1 //
+    identifier      non-special-char  +  mix-of non-special-char*n || number-char*n  +  whitespace || special-char
+    keyword         same as identifier, then check if keyword
+    operator        special-char  +  check-next * n
+        OPERATOR CHECKING TREE:
+            +
+                +=
+                ++
+            -
+                -=
+                --
+            *
+                *=
+                **
+            /
+                /=
+            %
+                %=
+            =
+                ==
+            >
+                >=
+                >>
+            <
+                <=
+                <<
+            &
+                &&
+            |
+                ||
+            ^
+                ^^
+            !
+                !=
+            .
+                ..
+            ~
+            @
+            ?
+            :
+            [
+            ]
+            (
+            )
+            ,
+    numliteral      number-char*n  +  non-number-char(except . b x e)
+        decimal     3.14
+        binary      0b00010110
+        hex         0x4f4f3e
+        sci         10e100
+    strliteral      quote + ... + quote(without backslash)
 
-v
-va
-var
-var=
-=1
-1(EOF)
-
-// a1=[1,[2,3]] //
-
-a                   stream: identifier
-a1
-a1=                 stream: operator
-    identifier: a1
-
-=[                  stream: seperator
-    operator: =
-
-[1                  stream: num
-    seperator: [
-
-1,                  stream: seperator
-    literal: 1
-
-,[
-,[2                 stream: num
-    seperator: ,
-    seperator: [
-
-2,                  stream: seperator
-    literal: 2
-
-,3                  stream: num
-    seperator: ,
-
-3]                  stream: seperator
-    literal: 3
-
-]]
-]](EOF)             end of file
-    seperator: ]
-    seperator: ]
-
-
+-------------------------

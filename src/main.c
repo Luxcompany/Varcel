@@ -1,19 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*
 IM OKAY WITH HARDCODING LEXEMES - THEY SHOULDN'T BE CHANGED ANYWAYS
 */
 const char whitespaceChars[] = " \n\t";
 
-const char specialChars[] = "()[],+-*/%=><&|^~!.@?:\"";
-
-const char *seperators[] = {"(", ")", "[", "]", ",", "."};
-
 const char *operators[] = {
 "+", "+=", "++", "-", "-=", "--", "*", "*=", "**", "/", "/=", "%", "%=", "=", "==",
 ">", ">=", ">>", "<", "<=", "<<", "&", "&&", "|", "||", "^", "^^", "~", "!", "!=",
-"..", "@", "?", ":"
+".", "..", "@", "?", ":", "(", ")", "[", "]", ","
 };
 
 const char *keywords[] = {
@@ -23,12 +20,11 @@ const char *keywords[] = {
 };
 
 typedef enum {
-    nilType = -1,
     identifier,
     keyword,
     operator,
-    seperator,
-    literal
+    numLiteral,
+    strLiteral
 } TokenType;
 
 typedef struct {
@@ -93,7 +89,7 @@ void token_tokenize_string(const char *srcStr, int srcStrLength, Token **srcToke
     *srcTokenArrPtr = malloc(numPossibleTokens*sizeof(Token));
     if(!srcTokenArrPtr) fprintf(stderr, "[ERR] CAN'T ALLOCATE INITIAL TOKENS\n");
 
-    Token *t = token_append(srcTokenArrPtr, numTokens, &numPossibleTokens); t->type = nilType; t->contents = "first";
+    Token *t = token_append(srcTokenArrPtr, numTokens, &numPossibleTokens); t->type = identifier; t->contents = "first";
     
     int curIndex = 0;   //index of begining of current token
     int curOffset = 0;  //offset of index to read srcStr from curIndex to curOffset
@@ -138,10 +134,10 @@ void token_tokenize_file(const char *srcFilepath, Token **srcTokenArr, int *numT
  * @param numTokens number of consecutive tokens
  */
 void token_arr_print(Token *tokens, int numTokens){
-    const char *typeNames[] = {"Nil", "Identifier", "Keyword", "Operator", "Seperator", "Literal"};
+    const char *typeNames[] = {"Identifier", "Keyword", "Operator", "numLiteral", "strLiteral"};
     printf("NUM TOKENS: %i:\n", numTokens);
     for(int i = 0; i < numTokens; ++i)
-        printf("Type: %s    Contents: %s\n", typeNames[tokens[i].type+1], tokens[i].contents);
+        printf("Type: %s    Contents: %s\n", typeNames[tokens[i].type], tokens[i].contents);
 }
 
 int main(){
