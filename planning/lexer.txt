@@ -6,9 +6,9 @@ TYPE CHANGE OR END OF FILE TRIGGERS UNIT TOKENIZATION
     parse string from cur to offset-1
     cur = offset-1
 
-Token analysis type details
+Token analysis type details      iden-char=abc...ABC...  number-char=123...  special-char=(operator first chars)
 
-    identifier      non-special-char  +  mix-of non-special-char*n || number-char*n  +  whitespace || special-char
+    identifier      iden-char  +  mix-of iden-char*n || number-char*n  +  whitespace || special-char
     keyword         same as identifier, then check if keyword
     operator        special-char  +  check-next * n
         OPERATOR CHECKING TREE:
