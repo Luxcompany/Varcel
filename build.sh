@@ -6,18 +6,24 @@ COMPILER="gcc"
 OPTIONS="-Wall -Wextra -g" #release should contain -s
 
 #########################################################
-INPUT=""
 OUTPUT="./bin/$(basename $(pwd)).exe"
 
-#recursive search                   Recurse if directory is folder          Give back name of file
-rSearch() { for i in "$1"/*;do      if [ -d "$i" ]; then rSearch "$i";      elif [ -f "$i" ] && [ ${i: -2} == ".c" ]; then printf "$i ";fi      done }
-
+INPUT=""
+#recursive search files                 Recurse if directory is folder              Give back name of directory if it's a c file
+rSearchFile() { for i in "$1"/*;do      if [ -d "$i" ]; then rSearchFile "$i";      elif [ -f "$i" ] && [ ${i: -2} == ".c" ]; then printf "$i ";fi      done }
 for i in $INPUT_DIRECTORIES; do
-    INPUT="$INPUT $(rSearch $i)"
+    INPUT="$INPUT $(rSearchFile $i)"
+done
+
+INCLUDE_DIRECTORIES=$INPUT_DIRECTORIES
+#recursive search dirs                 Recurse and give back name if directory is folder
+rSearchDir() { for i in "$1"/*;do      if [ -d "$i" ]; then printf "$i "; rSearchDir "$i";  fi      done }
+for i in $INPUT_DIRECTORIES; do
+    INCLUDE_DIRECTORIES="$INCLUDE_DIRECTORIES $(rSearchDir $i)"
 done
 
 INCLUDES=""
-for i in $INPUT_DIRECTORIES;do
+for i in $INCLUDE_DIRECTORIES;do
     INCLUDES="$INCLUDES -I$i"
 done
 

@@ -1,5 +1,5 @@
-#ifndef LIST_H_
-#define LIST_H_
+#ifndef VARCEL_LIST_H_
+#define VARCEL_LIST_H_
 
 /** @brief opaque handle to list */
 typedef struct List *List;
@@ -12,7 +12,7 @@ typedef void *Element;
  * @param stride number of bytes between consecutive elements
  * @returns opaque handle to list
  */
-List list_create(int stride);
+List list_create(unsigned int stride);
 /**
  * @brief frees memory of a list created with list_create
  * @param list opaque handle of list to destroy
@@ -29,23 +29,23 @@ Element list_append(List *list);
 /**
  * @brief gets size of list
  * @param list list to get size of
- * @returns int num of elements in list
+ * @returns unsigned int num of elements in list
  */
-int list_size(List list);
+unsigned int list_size(List list);
 
 /**
  * @brief gets possible size a list can be before expanding
  * @param list list to get possible size of
- * @returns int num of possible elements in list
+ * @returns unsigned int num of possible elements in list
  */
-int list_possible_size(List list);
+unsigned int list_possible_size(List list);
 
 /**
  * @brief gets stride between consecutive list elements
  * @param list list to get stride of
- * @returns int num of stride
+ * @returns unsigned int num of stride
  */
-int list_stride(List list);
+unsigned int list_stride(List list);
 
 /**
  * @brief gets an element in list
@@ -53,6 +53,6 @@ int list_stride(List list);
  * @param index index of element to get
  * @returns element of list, or NULL if error
  */
-Element list_get(List list, int index);
+Element list_get(List list, unsigned int index);
 
 #endif
