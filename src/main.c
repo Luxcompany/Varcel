@@ -2,17 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <list.h>
-#define VARCEL_LOG_DEBUG_
+#define VARCEL_LOG_SHOW_DEBUG_
 #include <log.h>
+#include <token.h>
 
 typedef unsigned int uint;
 
-/*
-IM OKAY WITH HARDCODING LEXEMES - THEY SHOULDN'T BE CHANGED ANYWAYS
-*/
 const char whitespaceChars[] = " \n\t";
+const char numberChars[] = "1234567890";
+const char identifierChars[] =
+"qwertyuiopasdfghjklzxcvbnm"
+"QWERTYUIOPASDFGHJKLZXCVBNM"
+"_";
 
-const char *operators[] = { //layout: (op-char, subops), ...
+const char *operators[] = { //layout: (op-char, subops, ...), ...
 "+", "+=", "++", "-", "-=", "--", "*", "*=", "**", "/", "/=", "%", "%=", "=", "==",
 ">", ">=", ">>", "<", "<=", "<<", "&", "&&", "|", "||", "^", "^^", "~", "!", "!=",
 ".", "..", "@", "?", ":", "(", ")", "[", "]", ","
@@ -22,27 +25,15 @@ const char *operators[] = { //layout: (op-char, subops), ...
 List specialChars;
 List operatorTree;
 
-const char *keywords[] = {
+//moving this to semantic analyzer
+/*const char *keywords[] = {
 "arr", "sizeof", "const", "mut", "freeze", "uses", "hidden",
 "strict", "istype", "alias", "real", "int", "lambda", "amb",
 "string"
-};
-
-typedef enum {
-    identifier,
-    keyword,
-    operator,
-    numLiteral,
-    strLiteral
-} TokenType;
-
-typedef struct {
-    TokenType type;
-    const char * contents;
-} Token;
+};*/
 
 /**
- * @brief compare a subsection of str1 to all of str2 - used in token_tokenize_string
+ * @brief compare a subsection of str1 to all of str2 - used in lexer_parse_string
  */
 static uint str_compare(const char *str1, uint str1Offset, uint numCharsToCompare, const char *str2){
     for(uint i = 0; (str2[i] != '\0')&&(i < numCharsToCompare); ++i)
@@ -54,11 +45,11 @@ static uint str_compare(const char *str1, uint str1Offset, uint numCharsToCompar
 /**
  * @brief Parse a string into tokens
  * @param srcStr input string to parse
- * @param srcStrLength Length of input string (number of chars)
+ * @param srcStrLength Length of input string in number of chars
  * @param srcTokenListPtr pointer to initialized list of tokens
  * @param numTokens pointer to int for writing the total number of processed tokens
  */
-void token_tokenize_string(const char *srcStr, uint srcStrLength, List *srcTokenListPtr, uint *numTokens){
+void lexer_parse_string(const char *srcStr, uint srcStrLength, List *srcTokenListPtr, uint *numTokens){
     if(!(*srcTokenListPtr)){logE("TOKEN LIST ISN'T INITIALIZED"); return;}
 
     Token *t = list_append(srcTokenListPtr); t->type = identifier; t->contents = "first";
@@ -79,7 +70,7 @@ void token_tokenize_string(const char *srcStr, uint srcStrLength, List *srcToken
  * @param srcTokenList pointer to initialized list of tokens
  * @param srcTokenList pointer to int for writing the total number of processed tokens
  */
-void token_tokenize_file(const char *srcFilepath, List *srcTokenList, uint *numTokens){
+void lexer_parse_file(const char *srcFilepath, List *srcTokenList, uint *numTokens){
     FILE *srcFile;
     srcFile = fopen(srcFilepath, "r");  //open source file for reading
 
@@ -91,7 +82,7 @@ void token_tokenize_file(const char *srcFilepath, List *srcTokenList, uint *numT
         fseek(srcFile, 0, SEEK_SET);    
         fread(srcStr, 1, srcSize, srcFile); //read source file contents into source string
 
-        token_tokenize_string(srcStr, srcSize, srcTokenList, numTokens); //feed source string into tokenization function
+        lexer_parse_string(srcStr, srcSize, srcTokenList, numTokens); //feed source string into tokenization function
         free(srcStr);
     }else{
         logE("CAN'T OPEN FILE: %s", srcFilepath);  //print error if file cant be opened
@@ -101,18 +92,8 @@ void token_tokenize_file(const char *srcFilepath, List *srcTokenList, uint *numT
 }
 
 /**
- * @brief print contents of tokens to stdout.
- * PRECONDITION: tokens up to numTokens is initialized with tokens
- * @param tokens pointer to begnining of tokens in memory
- * @param numTokens number of consecutive tokens
+ * @brief computes operator tree and special chars
  */
-void token_list_print(List tokens, uint numTokens){
-    const char *typeNames[] = {"Identifier", "Keyword", "Operator", "numLiteral", "strLiteral"};
-    printf("NUM TOKENS: %i:\n", numTokens);
-    for(uint i = 0; i < numTokens; ++i)
-        printf("Type: %s    Contents: %s\n", typeNames[ ((Token *)list_get(tokens, i)) -> type ], ((Token *)list_get(tokens, i)) -> contents);
-}
-
 static void operator_tree_init(){
     specialChars = list_create(sizeof(const char *));
     operatorTree = list_create(sizeof(List));
@@ -137,14 +118,21 @@ static void operator_tree_init(){
     }
 }
 
-void operator_tree_destroy(){
+/**
+ * @brief frees operator tree and special chars
+ */
+static void operator_tree_destroy(){
     for(size_t i=0; i<list_size(operatorTree); ++i){
         List *opGroup = (List *)list_get(operatorTree, i);
         list_destroy(*opGroup);
     }
     list_destroy(operatorTree);
+    list_destroy(specialChars);
 }
 
+/**
+ * @brief prints contents of operator tree
+ */
 static void operator_tree_print(){
     for(size_t i=0; i<list_size(operatorTree); ++i){
         List *opGroup = (List *)list_get(operatorTree, i);
@@ -165,9 +153,9 @@ int main(){
 
     List srcTokenList = list_create(sizeof(Token));
     uint numTokens;
-    token_tokenize_file("./res/test.vl", &srcTokenList, &numTokens);
+    lexer_parse_file("./res/test.vl", &srcTokenList, &numTokens);
 
-    token_list_print(srcTokenList, numTokens);
+    token_list_print(srcTokenList);
 
     list_destroy(srcTokenList);
     operator_tree_destroy();

@@ -1,0 +1,26 @@
+Processes file                            Executes file
+
+(LEXER -> PARSER -> SEMANTIC-ANALYZER) -> EXECUTOR
+
+
+
+including byproducts:
+src -> lexer -> tokens -> parser -> AST -> SEMANTIC-ANALYZER -> action-tree -> executor
+
+
+
+LEXER 
+    Converts source code into tokens that can be individually processed
+
+PARSER
+    Organizes tokens into an AST for later processing - groups tokens based on operator binding, and seperators
+
+SEMANTIC-ANALYZER
+    Completes details for AST
+
+EXECUTOR
+    Something that executes an action tree in some form - interpreter, transpiler, compiler, etc
+
+
+
+Made so each stage can be swaped with another version of itself - mostly the executor

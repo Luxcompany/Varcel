@@ -136,10 +136,10 @@ sizeof	//evaluates to number of elements in following array
 istype	//evaluates to 1 if an expression is of specified type, 0 otherwise -- var is real
 
 const	//makes following lexeme immutable -- const var = 4
-mut		//makes following lexeme mutable -- mut a = [1,2,3]
+mut	//makes following lexeme mutable -- mut a = [1,2,3] -- gives lambdas access to global variables, lambdas' definitions can't be changed
 freeze  //changes properties of following array -- individual elements of the array are still mutable, but no elements can be taken away or added, and the type of each element is immutable
 
-uses	//links the visible contents of a file or library -- uses <lib>
+uses	//links the visible contents of a file or module -- uses <lib>
 
 hidden  //hides the following lexeme from other files -- hidden var = 3 //var can only be directly acessed from this file
 
@@ -154,9 +154,9 @@ types:
 real	//single value on the "real" numberline -- accounts for decimal values
 int 	//single integral value
 lambda	//evaluates to body defined on decleration
-amb		//ambiguous - umbrella type -- ambbiguous array can contain multiple types   
+amb     //ambiguous - umbrella type -- ambbiguous array can contain multiple types   
 
-string		//an array of ints -- arr is implied
+string	//an array of ints -- arr is implied
 
 
 reals are mutable by default
@@ -176,13 +176,14 @@ decleration and execution of lambdas:
 
 //decleration
 lam[params] = body		//declares lam as the evaluation of body with parameters params where body has access to params
-lam[params..] = body	//declares lam as a multiple parameter lambda where params is treated as an array in body -- params[1] is second parameter (because arrays begin at 0)
+lam[params..] = body	        //declares lam as a multiple parameter lambda where params is treated as an array in body -- params[1] is second parameter (because arrays begin at 0)
 //NOTE: type optional before parameter name  (useful for avoiding bugs)
 //NOTE: RESERVED FUNCTION NAMES: underscore, "operator" followed by an operator
+//NOTE: body has access to params and other lambdas only - no global variables - exception if lambda is mutable
 
 //execution
 lam [params]			//executes lam with params as parameters
-lam arr					//pass array arr to lam where elements of arr will be treated as parameters - lam arr is equivilant to lam [1,2,3] if arr = [1,2,3]
+lam arr			        //pass array arr to lam where elements of arr will be treated as parameters - lam arr is equivilant to lam [1,2,3] if arr = [1,2,3]
 
 //NOTE: lambda overloading supported
 lam[a, b] = body
@@ -264,7 +265,7 @@ something = expression				//evaluates to expression
 ----------------------------
 */
 
-//theoretical vector implimentation--------------------------what i did to omit brackets for some functions might be bad practice
+//theoretical vector implimentation--------------------------what i did to omit brackets for some lambdas might be bad practice
 
 //! vector type
 real arr alias vector
@@ -304,7 +305,6 @@ hidden drawVec[v] = trace[originOf[v], v]
 //! Draws an array of vecs
 drawVecs[vector vecs..] = for vecs@i: drawVec[vecs@i]
 
-
 //use of vectors
 
 v1 = normalize vec[3,4]
@@ -312,6 +312,8 @@ drawVecs [v1]
 
 someVectors = [vec[1,3],vec[4,3]]
 drawVecs someVectors
+
+drawVecs [vec[1,2],vec[*1.1,-1]..vec[5,-2]] //this might be hard to impliment
 
 
 //currying----------------------------------------------------
@@ -331,10 +333,14 @@ takeFrom[allNumbers, 3, 7] // [3,4,5,6,7]
 
 
 //other (TO BE ORGANIZED LATER)
-	
+
+//how?	
 [1,2,3,4,5,6,7,8]
 toPointArr: [(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8)]
 toPointArr_inPlace: [(1,2),(2,4),(5,6),(7,8)]
+
+//filter keyword - removes elements where body isn't true
+filter v@i: v@i%2==0
 
 
 /*integration with c/c++? (via macros) (captures via shared memory)
