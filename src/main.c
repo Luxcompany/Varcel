@@ -1,10 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <list.h>
-#include <log.h>
-#include <token.h>
-#include <lexer.h>
+#include <pipeline/token.h>
+#include <pipeline/lexer.h>
 
 int main(){
     List srcTokenList = list_create(sizeof(Token));

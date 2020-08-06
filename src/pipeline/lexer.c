@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <log.h>
-#include <token.h>
-#include <lexer.h>
+#include <pipeline/token.h>
+#include <pipeline/lexer.h>
 
 static const char whitespaceChars[] = " \n\t";
 static const char numberChars[] = "1234567890";

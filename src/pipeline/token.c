@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <list.h>
-#include <token.h>
+#include <pipeline/token.h>
 
 void token_list_print(List tokens){
     uint numTokens = list_size(tokens);

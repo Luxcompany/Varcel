@@ -15,15 +15,8 @@ for i in $INPUT_DIRECTORIES; do
     INPUT="$INPUT $(rSearchFile $i)"
 done
 
-INCLUDE_DIRECTORIES=$INPUT_DIRECTORIES
-#recursive search dirs                 Recurse and give back name if directory is folder
-rSearchDir() { for i in "$1"/*;do      if [ -d "$i" ]; then printf "$i "; rSearchDir "$i";  fi      done }
-for i in $INPUT_DIRECTORIES; do
-    INCLUDE_DIRECTORIES="$INCLUDE_DIRECTORIES $(rSearchDir $i)"
-done
-
 INCLUDES=""
-for i in $INCLUDE_DIRECTORIES;do
+for i in $INPUT_DIRECTORIES;do
     INCLUDES="$INCLUDES -I$i"
 done
 
