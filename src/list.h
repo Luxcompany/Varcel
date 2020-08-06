@@ -1,6 +1,8 @@
 #ifndef VARCEL_LIST_H_
 #define VARCEL_LIST_H_
 
+#include <uint.h>
+
 /** @brief opaque handle to list */
 typedef struct List *List;
 
@@ -53,6 +55,6 @@ unsigned int list_stride(List list);
  * @param index index of element to get
  * @returns element of list, or NULL if error
  */
-Element list_get(List list, unsigned int index);
+Element list_get(List list, uint index);
 
 #endif

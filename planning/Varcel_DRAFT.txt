@@ -26,13 +26,13 @@ names of variables/lambdas/etc
 //literal
 numbers and strings -- 1.3  100 "Hello world"
 
-//seperators
+//seperators (treated as operators)
 whitespace
 []
 ()
 ,
 
-//operators
+//operators - excluding seperators
 +   +=  ++
 -   -=  --
 *   *=  **
@@ -48,10 +48,11 @@ whitespace
 ~
 !   !=
 
-        ..
+.       ..              //single dot unused
 @
 
-?           :
+?
+:
 
 //keywords (including types)
 arr     sizeof
@@ -59,6 +60,7 @@ const   mut     freeze
 uses    hidden
 strict
 istype  alias
+map
 
 real    int 
 lambda 
@@ -115,7 +117,7 @@ _[params] = body				/evaluates to anonymous lambda with parameters params
 [a,b..c]						//evaluates to array where array@0 is a and following elements are a+(b-a) until a+index <= c -- [1,1.1..1.5] = [1, 1.1, 1.2, 1.3, 1.4, 1.5]
 [a,+b..c]						//evaluates to array where array@0 is a and following elements are a+b until a+index <= c -- [1,+.1..1.5] = [1, 1.1, 1.2, 1.3, 1.4, 1.5]
 
-for arr@index: body 			//evaluates to a copy of arr where each element is evaluated to contents of body -- body has access to index
+map arr@index: body 			//evaluates to a copy of arr where each element is evaluated to contents of body -- body has access to index
 
 condition ? case1 : case2		//evaluates to case1 if condition is true, otherwise case2
 
@@ -129,23 +131,25 @@ a ^^ b
 
 keywords:
 
-arr		//specifies typename to the left is an array of that type -- real arr
+arr	        //specifies typename to the left is an array of that type -- real arr
 
-sizeof	//evaluates to number of elements in following array
+sizeof	        //evaluates to number of elements in following array
 
-istype	//evaluates to 1 if an expression is of specified type, 0 otherwise -- var is real
+istype  	//evaluates to 1 if an expression is of specified type, 0 otherwise -- var is real
 
-const	//makes following lexeme immutable -- const var = 4
-mut	//makes following lexeme mutable -- mut a = [1,2,3] -- gives lambdas access to global variables, lambdas' definitions can't be changed
-freeze  //changes properties of following array -- individual elements of the array are still mutable, but no elements can be taken away or added, and the type of each element is immutable
+const	        //makes following lexeme immutable -- const var = 4
+mut	        //makes following lexeme mutable -- mut a = [1,2,3] -- gives lambdas access to global variables, lambdas' definitions can't be changed
+freeze          //changes properties of following array -- individual elements of the array are still mutable, but no elements can be taken away or added, and the type of each element is immutable
 
-uses	//links the visible contents of a file or module -- uses <lib>
+uses	        //links the visible contents of a file or module -- uses <lib>
 
-hidden  //hides the following lexeme from other files -- hidden var = 3 //var can only be directly acessed from this file
+hidden          //hides the following lexeme from other files -- hidden var = 3 //var can only be directly acessed from this file
 
-strict	//forces eager evaluation on following lambda or expression -- strict lam[params] = body //body will be evaluated asap -- strict 1+3
+strict	        //forces eager evaluation on following lambda or expression -- strict lam[params] = body //body will be evaluated asap -- strict 1+3
 
-alias	//declares following typename as a new type equivilant to the preceding type -- int arr alias chars
+alias	        //declares following typename as a new type equivilant to the preceding type -- int arr alias chars
+
+map             //used for manipulating data of an array copy
 
 ---------------------------
 
@@ -274,13 +278,13 @@ real arr alias vector
 vec[real x..] = [vector] x
 
 //! multiplies a vector v by a scalar value n
-scalar[real n, vector v] = for v@i: v@i + n
+scalar[real n, vector v] = map v@i: v@i + n
 
 //! add is overriden for vectors for completeness
 add[vector v1, vector v2] = add[v1, v2]
 
 //! subtracts v2 from v1
-sub[vector v1, vector v2] = for v1@i: v1@i - v2@i
+sub[vector v1, vector v2] = map v1@i: v1@i - v2@i
 
 //! calculates the magnitude of v -- called on array of components of v, so square brackets can be ommited I.E. "magnitude v"
 magnitude[component..] = sqrt[ sum[pow[v, 2]] ]
@@ -295,15 +299,15 @@ dot[vector v1, vector v2] = product[ add[v1,v2] ]
 angle[vector v1, vector v2] = arccos[ dot[v1, v2] / ( magnitude v1 * magnitude v2 ) ]
 
 //helper for following lamda
-hidden appendCommas[v] = for v@i: concat[v@i, ","]
+hidden appendCommas[v] = map v@i: concat[v@i, ","]
 //! returns a string containing the values in v
 peakContents[real components..] = concat["<", appendCommas[components], ">"]
 
 //helpers for following lambda
-hidden originOf[v] = for v@i: 0
+hidden originOf[v] = map v@i: 0
 hidden drawVec[v] = trace[originOf[v], v]
 //! Draws an array of vecs
-drawVecs[vector vecs..] = for vecs@i: drawVec[vecs@i]
+drawVecs[vector vecs..] = map vecs@i: drawVec[vecs@i]
 
 //use of vectors
 
@@ -315,6 +319,13 @@ drawVecs someVectors
 
 drawVecs [vec[1,2],vec[*1.1,-1]..vec[5,-2]] //this might be hard to impliment
 
+//fizzbuzz---------------------------------------------------
+
+fizz[int arr a] =
+        map a@i:
+        sizeof (b=concat[ a@i%3==0 ? "fizz" : "", a@i%5==0 ? "buzz" : ""]) ? b : a@i
+
+fizz[ [1..100] ]
 
 //currying----------------------------------------------------
 
@@ -326,7 +337,7 @@ addThree[4] //= 7
 
 
 //lazy evaluation----------------------------------------------
-addone[n] = concat[n, addone[n+1]]
+addone[n] = concat[n, addone[++n]]
 allNumbers = addone[0]
 
 takeFrom[allNumbers, 3, 7] // [3,4,5,6,7]

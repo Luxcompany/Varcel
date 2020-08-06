@@ -3,7 +3,7 @@
 INPUT_DIRECTORIES="./src"
 
 COMPILER="gcc"
-OPTIONS="-Wall -Wextra -g" #release should contain -s
+OPTIONS="-Wall -Wextra -g -DVARCEL_LOG_SHOW_DEBUG_" #release should contain -s
 
 #########################################################
 OUTPUT="./bin/$(basename $(pwd)).exe"

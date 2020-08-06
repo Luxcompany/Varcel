@@ -1,8 +1,6 @@
 #include <stdlib.h>
 #include <list.h>
 
-typedef unsigned int uint;
-
 struct List{
     uint size;           //number of elements in list
     uint possibleSize;   //number of elements that can be in memory before expandings
