@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <log.h>
 #include <pipeline/token.h>
 #include <pipeline/lexer.h>
@@ -33,23 +34,23 @@ static List operatorTree = NULL;
  * @brief computes operator tree and special chars
  */
 static void operator_tree_init(){
-    specialChars = list_create(sizeof(const char *));
-    operatorTree = list_create(sizeof(List));
+    specialChars = list_create(char);
+    operatorTree = list_create(List);
     int lastBaseOp = -1;
     for(size_t i = 0; i < sizeof(operators)/sizeof(char *); ++i){
         if(strlen(operators[i]) == 1){
             ++lastBaseOp;
-            List *opGroup = (List *)list_append(&operatorTree);
-            *opGroup = list_create(sizeof(const char *));
+            List *opGroup = (List *)list_append(operatorTree);
+            *opGroup = list_create(const char *);
 
-            const char **baseOp = (const char **)list_append(opGroup);
+            const char **baseOp = (const char **)list_append(*opGroup);
             *baseOp = operators[i];
 
-            const char **specialChar = (const char **)list_append(&specialChars);
-            *specialChar = operators[i];
+            char *specialChar = (char *)list_append(specialChars);
+            *specialChar = *(operators[i]);
         }else{
-            List *opGroup = (List *)list_get(operatorTree, lastBaseOp);
-            const char **subOp = (const char **)list_append(opGroup);
+            List *opGroup = (List *)list_get_ptr(operatorTree, lastBaseOp);
+            const char **subOp = (const char **)list_append(*opGroup);
 
             *subOp = operators[i];
         }
@@ -61,7 +62,7 @@ static void operator_tree_init(){
  */
 static void operator_tree_destroy(){
     for(size_t i=0; i<list_size(operatorTree); ++i){
-        List *opGroup = (List *)list_get(operatorTree, i);
+        List *opGroup = (List *)list_get_ptr(operatorTree, i);
         list_destroy(*opGroup);
     }
     list_destroy(operatorTree);
@@ -73,9 +74,9 @@ static void operator_tree_destroy(){
  */
 static void operator_tree_print(){
     for(size_t i=0; i<list_size(operatorTree); ++i){
-        List *opGroup = (List *)list_get(operatorTree, i);
+        List *opGroup = (List *)list_get_ptr(operatorTree, i);
         for(size_t i=0; i<list_size(*opGroup); ++i){
-            char **op = list_get(*opGroup, i);
+            char **op = list_get_ptr(*opGroup, i);
             if(!i){
                 printf("%s\n",*op);
             }else{
@@ -95,17 +96,58 @@ static uint str_compare(const char *str1, uint str1Offset, uint numCharsToCompar
     return 1;
 }
 
+static int type_check_identifier (char c) { for(uint i = 0; i < sizeof(identifierChars)/sizeof(char); ++i) if(identifierChars[i]              == c) return 1; return 0; }
+static int type_check_operator   (char c) { for(uint i = 0; i < list_size(specialChars);              ++i) if(list_get(specialChars, i, char) == c) return 1; return 0; }
+static int type_check_numLiteral (char c) { for(uint i = 0; i < sizeof(numberChars)/sizeof(char);     ++i) if(numberChars[i]                  == c) return 1; return 0; }
+static int type_check_strLiteral (char c) { return c == '\"'; }
+
+/** @brief Check type based on first char in token
+ *  @returns token type
+ */
+static TokenType type_check_all(char c){
+    //ordered for efficiency - less intensive checks are first
+    if( type_check_strLiteral(c) ) return strLiteral;
+    if( type_check_numLiteral(c) ) return numLiteral;
+    if( type_check_operator(c)   ) return operator;
+    if( type_check_identifier(c) ) return identifier;
+    return unknown;
+}
+
 void lexer_parse_string(const char *srcStr, uint srcStrLength, List *srcTokenListPtr, uint *numTokens){
     if(!(*srcTokenListPtr)){logE("TOKEN LIST ISN'T INITIALIZED"); return;}
     if(!operatorTree) operator_tree_init();
     //operator_tree_print();
-
-    Token *t = list_append(srcTokenListPtr); t->type = identifier; t->contents = "first";
     
-    uint curIndex = 0;   //index of begining of current token
-    uint curOffset = 0;  //offset of index to read srcStr from curIndex to curOffset
-    for(; curOffset < srcStrLength; ++curOffset){
+    TokenType curType = unknown;
+    uint curLIndex = 0;            //current left index - index of begining of current token
+    uint curRIndex = 0;            //current right index - index of end of current token
+    uint curTokenLength = 0;       //number of srcStr chars to read from curLIndex to curRIndex
+    for(; curRIndex < srcStrLength; ++curRIndex){
+        curTokenLength = curRIndex-curLIndex;
+        //printf("type %i\n", curType);
+        switch(curType){
+            case unknown:
+                curType = type_check_all(srcStr[curRIndex]);
+                curLIndex = curRIndex;
+            break;
+
+            case identifier:
+                if( !(type_check_identifier(srcStr[curRIndex]) || type_check_numLiteral(srcStr[curRIndex])) ){
+                    curType = unknown;
+                    
+                    Token *t = list_append(*srcTokenListPtr);
+                    t->type = identifier;
+                    t->contents = malloc(1);
+
+                    curLIndex = curRIndex;
+                }
+            break;
+
+            case operator:
+
+            break;
         
+        }
     }
 
     *numTokens = list_size(*srcTokenListPtr);
@@ -133,6 +175,9 @@ void lexer_parse_file(const char *srcFilepath, List *srcTokenList, uint *numToke
     fclose(srcFile);
 }
 
-void lexer_clean_up(){
+void lexer_clean_up(List *srcTokenList){
+    for(uint i=0; i < list_size(*srcTokenList); ++i)
+        free(list_get(*srcTokenList, i, Token).contents);
+
     operator_tree_destroy();
 }

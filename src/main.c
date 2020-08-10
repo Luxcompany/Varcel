@@ -1,15 +1,16 @@
+#include <stdio.h>
 #include <list.h>
 #include <pipeline/token.h>
 #include <pipeline/lexer.h>
 
 int main(){
-    List srcTokenList = list_create(sizeof(Token));
+    List srcTokenList = list_create(Token);
     uint numTokens;
     lexer_parse_file("./res/test.vl", &srcTokenList, &numTokens);
 
     token_list_print(srcTokenList);
 
-    lexer_clean_up();
+    lexer_clean_up(&srcTokenList);
     list_destroy(srcTokenList);
 
     return 0;

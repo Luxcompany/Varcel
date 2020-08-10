@@ -15,7 +15,7 @@ typedef enum {
 /** contains a TokenType and a string */
 typedef struct {
     TokenType type;
-    const char * contents;
+    char * contents;
 } Token;
 
 /**
@@ -23,5 +23,19 @@ typedef struct {
  * @param tokens list of tokens
  */
 void token_list_print(List tokens);
+
+/**
+ * @brief allocate for content of token - use if content isn't being set to something that already exists
+ * @param tokenPtr pointer to token to allocate for
+ * @param numChars number of chars to allocate
+ * @returns pointer to allocated data
+ */
+char *token_content_alloc(Token *tokenPtr, uint numChars);
+
+/**
+ * @brief free the contents of a token
+ * @param tokenPtr pointer to token to free
+ */
+void token_content_free(Token *tokenPtr);
 
 #endif //VARCEL_TOKEN_H

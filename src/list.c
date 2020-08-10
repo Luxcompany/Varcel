@@ -14,7 +14,7 @@ static uint list_size_internal(uint stride, uint size){
     return sizeof(struct List) + stride*size;
 }
 
-List list_create(uint stride){
+List _list_create_internal(uint stride){
     List list = malloc(list_size_internal(stride, 1)); //alloc enough for list data, and one element
     list->size = 0;             //0 elements are initially stored
     list->possibleSize = 1;     //Enough room for 1 element
@@ -27,8 +27,9 @@ void list_destroy(List list){
     free(list);
 }
 
-Element list_append(List *list){
+Element _list_append_internal(List *list){
     if(!(*list)) return NULL;
+
     if((*list)->size == (*list)->possibleSize){
         uint newSize = 2*((*list)->possibleSize);
         List newList = realloc((*list), list_size_internal((*list)->stride, newSize));
@@ -45,7 +46,7 @@ Element list_append(List *list){
     }
 
     ++((*list)->size);
-    return list_get((*list), ((*list)->size)-1);
+    return list_get_ptr((*list), ((*list)->size)-1);
 }
 
 uint list_size(List list){
@@ -60,9 +61,13 @@ uint list_stride(List list){
     return list->stride;
 }
 
-Element list_get(List list, uint index){
+Element list_get_ptr(List list, uint index){
     if(index < list->size)
         return (Element)( ((void *)list) + sizeof(struct List) + index*(list->stride) );
     else
         return NULL;
+}
+
+void *list_ptr(List list){
+    return (void *)list + sizeof(struct List);
 }

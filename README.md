@@ -13,7 +13,7 @@ Varcel is an open source, functional flavored, graphics-focused programmng langu
 Varcel can be used alone, or in tandem with other languages. *Integration of Varcel and other languages hasn't been worked out yet, but the plan is something like the code c below:*
 ```c
 double numbers[100]; //declare array "numbers" with 100 elements
-memset(numbers, 3, 100); //fill "numbers" with 3
+memset(numbers, 3, 100*sizeof(double)); //fill "numbers" with 3
 
 /*
 format:

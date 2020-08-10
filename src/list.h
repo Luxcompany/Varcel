@@ -14,19 +14,29 @@ typedef void *Element;
  * @param stride number of bytes between consecutive elements
  * @returns opaque handle to list
  */
-List list_create(unsigned int stride);
+List _list_create_internal(unsigned int stride);
+
+/**
+ * @brief creates a new list and returns a handle - must be paired with list_destroy
+ * @param type type to contain in list
+ * @returns opaque handle to list
+ */
+#define list_create(type) _list_create_internal(sizeof(type))
+
 /**
  * @brief frees memory of a list created with list_create
  * @param list opaque handle of list to destroy
  */
 void list_destroy(List list);
 
+Element _list_append_internal(List *list);
+
 /**
  * @brief expands list if needed, and returns pointer to element
- * @param list pointer to list to append to
+ * @param list list to append to
  * @returns element of list, or NULL if error
  */
-Element list_append(List *list);
+#define list_append(list) _list_append_internal(&list)
 
 /**
  * @brief gets size of list
@@ -53,8 +63,24 @@ unsigned int list_stride(List list);
  * @brief gets an element in list
  * @param list list to get element of
  * @param index index of element to get
- * @returns element of list, or NULL if error
+ * @returns void ptr to new elemtn
  */
-Element list_get(List list, uint index);
+Element list_get_ptr(List list, uint index);
+
+/**
+ * @brief gets an element in list
+ * @param list list to get element of
+ * @param index index of element to get
+ * @param type type of element to get
+ * @returns element of type
+ */
+#define list_get(list, index, type) (*(type*)list_get_ptr(list, index))
+
+/**
+ * @brief returns a void pointer to the begining of list - to be casted to desired type pointer
+ * @param list list to get ptr to
+ * @returns void ptr to be casted
+ */
+void *list_ptr(List list);
 
 #endif
