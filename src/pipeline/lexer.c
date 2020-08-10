@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdarg.h>
 #include <log.h>
 #include <pipeline/token.h>
@@ -122,8 +121,10 @@ void lexer_parse_string(const char *srcStr, uint srcStrLength, List *srcTokenLis
     uint curLIndex = 0;            //current left index - index of begining of current token
     uint curRIndex = 0;            //current right index - index of end of current token
     uint curTokenLength = 0;       //number of srcStr chars to read from curLIndex to curRIndex
-    for(; curRIndex < srcStrLength; ++curRIndex){
+    uint endOfFile = 0;            //for checking if end of file has been reached
+    for(; curRIndex <= srcStrLength; ++curRIndex){
         curTokenLength = curRIndex-curLIndex;
+        endOfFile = curRIndex == srcStrLength;
         //printf("type %i\n", curType);
         switch(curType){
             case unknown:
@@ -132,12 +133,17 @@ void lexer_parse_string(const char *srcStr, uint srcStrLength, List *srcTokenLis
             break;
 
             case identifier:
-                if( !(type_check_identifier(srcStr[curRIndex]) || type_check_numLiteral(srcStr[curRIndex])) ){
+                if( !(type_check_identifier(srcStr[curRIndex]) || type_check_numLiteral(srcStr[curRIndex])) || endOfFile){ //check if last char isnt identifier-char or number OR end of file
                     curType = unknown;
                     
                     Token *t = list_append(*srcTokenListPtr);
                     t->type = identifier;
-                    t->contents = malloc(1);
+                    t->contents = malloc(curTokenLength+1);         //malloc for text from src string and null termination char
+
+                    for(uint i=0; i < curTokenLength; ++i)
+                        (t->contents)[i] = srcStr[curLIndex+i];     //copy identifier name from srcstr to token contents
+                    
+                    (t->contents)[curTokenLength] = '\0';           //cap off string with null terminations
 
                     curLIndex = curRIndex;
                 }
