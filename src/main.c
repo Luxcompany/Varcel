@@ -10,7 +10,7 @@ int main(){
 
     token_list_print(srcTokenList);
 
-    lexer_clean_up(&srcTokenList);
+    lexer_clean_up(1, &srcTokenList);
     list_destroy(srcTokenList);
 
     return 0;

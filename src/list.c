@@ -5,48 +5,44 @@ struct List{
     uint size;           //number of elements in list
     uint possibleSize;   //number of elements that can be in memory before expandings
     uint stride;         //number of bytes between consecutive elements
-    //Element data after
+    char *data;
 };
 
-/** @returns size of list in bytes - use this instead of sizeof(list)
- */
-static uint list_size_internal(uint stride, uint size){
-    return sizeof(struct List) + stride*size;
-}
-
-List _list_create_internal(uint stride){
-    List list = malloc(list_size_internal(stride, 1)); //alloc enough for list data, and one element
+List list_create_stride(uint stride){
+    List list = malloc(sizeof(struct List)); //alloc list so it can be freed later
     list->size = 0;             //0 elements are initially stored
-    list->possibleSize = 1;     //Enough room for 1 element
+    list->possibleSize = 1;     //Enough room for 1 element is made
     list->stride = stride;
+    list->data = malloc(stride);    //make room for 1 element
 
     return list;
 }
 
 void list_destroy(List list){
+    free(list->data);
     free(list);
 }
 
-Element _list_append_internal(List *list){
-    if(!(*list)) return NULL;
+Element list_append(List list){
+    if(!list) return NULL;
 
-    if((*list)->size == (*list)->possibleSize){
-        uint newSize = 2*((*list)->possibleSize);
-        List newList = realloc((*list), list_size_internal((*list)->stride, newSize));
+    if(list->size == list->possibleSize){
+        uint newSize = 2*(list->possibleSize);
+        char *newData = realloc(list->data, newSize*(list->stride));
 
-        if(!newList){
-            newSize = 1+((*list)->possibleSize);
-            newList = realloc((*list), list_size_internal((*list)->stride, newSize));
+        if(!newData){
+            newSize = 1+(list->possibleSize);
+            newData = realloc(list->data, newSize*(list->stride));
 
-            if(!newList) return NULL;
+            if(!newData) return NULL;
         }
 
-        *list = newList;
-        (*list)->possibleSize = newSize;
+        list->data = newData;
+        list->possibleSize = newSize;
     }
 
-    ++((*list)->size);
-    return list_get_ptr((*list), ((*list)->size)-1);
+    ++(list->size);
+    return list_get_ptr(list, (list->size)-1);
 }
 
 uint list_size(List list){
@@ -62,12 +58,9 @@ uint list_stride(List list){
 }
 
 Element list_get_ptr(List list, uint index){
-    if(index < list->size)
-        return (Element)( ((void *)list) + sizeof(struct List) + index*(list->stride) );
-    else
-        return NULL;
+    return (Element)( list->data + index*(list->stride) );
 }
 
 void *list_ptr(List list){
-    return (void *)list + sizeof(struct List);
+    return (void *)(list->data);
 }

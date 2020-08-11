@@ -30,12 +30,12 @@ void token_list_print(List tokens);
  * @param numChars number of chars to allocate
  * @returns pointer to allocated data
  */
-char *token_content_alloc(Token *tokenPtr, uint numChars);
+//char *token_content_alloc(Token *tokenPtr, uint numChars);
 
 /**
  * @brief free the contents of a token
  * @param tokenPtr pointer to token to free
  */
-void token_content_free(Token *tokenPtr);
+//void token_content_free(Token *tokenPtr);
 
 #endif //VARCEL_TOKEN_H

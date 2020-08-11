@@ -15,6 +15,7 @@ void token_list_print(List tokens){
     }
 }
 
+/*
 char *token_content_alloc(Token *tokenPtr, uint numChars){
     return (tokenPtr->contents=malloc(sizeof(char)*numChars));
 }
@@ -22,3 +23,4 @@ char *token_content_alloc(Token *tokenPtr, uint numChars){
 void token_content_free(Token *tokenPtr){
     free(tokenPtr->contents);
 }
+*/

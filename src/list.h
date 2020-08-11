@@ -14,14 +14,14 @@ typedef void *Element;
  * @param stride number of bytes between consecutive elements
  * @returns opaque handle to list
  */
-List _list_create_internal(unsigned int stride);
+List list_create_stride(unsigned int stride);
 
 /**
  * @brief creates a new list and returns a handle - must be paired with list_destroy
  * @param type type to contain in list
  * @returns opaque handle to list
  */
-#define list_create(type) _list_create_internal(sizeof(type))
+#define list_create(type) list_create_stride(sizeof(type))
 
 /**
  * @brief frees memory of a list created with list_create
@@ -29,14 +29,12 @@ List _list_create_internal(unsigned int stride);
  */
 void list_destroy(List list);
 
-Element _list_append_internal(List *list);
-
 /**
  * @brief expands list if needed, and returns pointer to element
- * @param list list to append to
+ * @param list list to append to -- cant be a copy by value
  * @returns element of list, or NULL if error
  */
-#define list_append(list) _list_append_internal(&list)
+Element list_append(List list);
 
 /**
  * @brief gets size of list

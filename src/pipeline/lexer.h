@@ -23,8 +23,9 @@ void lexer_parse_file(const char *srcFilepath, List *srcTokenList, uint *numToke
 
 /**
  * @brief To be called once lexer will no longer be used -- frees memory
- * @param srcTokenLists pointers to all token lists passed to a lexer functions
+ * @param numTokens number of tokens supplied
+ * @param ... pointers to token lists
  */
-void lexer_clean_up(List *srcTokenLists);
+void lexer_clean_up(uint numTokens, ...);
 
 #endif //VARCEL_LEXER_H
