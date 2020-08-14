@@ -16,7 +16,7 @@ static const char identifierChars[] =
 static const char *operators[] = {
 "+", "+=", "++", "-", "-=", "--", "*", "*=", "**", "/", "/=", "%", "%=", "=", "==",
 ">", ">=", ">>", "<", "<=", "<<", "&", "&&", "|", "||", "^", "^^", "~", "!", "!=",
-".", "..", "@", "?", ":", "(", ")", "[", "]", ","
+"..", "@", "?", ":", "(", ")", "[", "]", ","
 };
 
 //Generated at runtime
@@ -111,12 +111,12 @@ static void operator_tree_print(List ops, uint lvl){
 }
 
 /** @brief returns the first operator starting at input */
-static char *operator_identify(const char *input, List ops){
+static const char *operator_identify(const char *input, List ops){
     for(uint i=0; i < list_size(ops); ++i){
         OperatorTreeNode op = list_get(ops, i, OperatorTreeNode);
         if(str_contains(input, op.operator)){
             if(list_size(op.subOperators) > 0){
-                char *subOp = operator_identify(input, op.subOperators);
+                const char *subOp = operator_identify(input, op.subOperators);
                 if(subOp == NULL)
                     return op.operator;
                 else
@@ -167,7 +167,7 @@ void lexer_parse_string(const char *srcStr, uint srcStrLength, List *srcTokenLis
                 curLIndex = curRIndex;
             break;
 
-            case identifier:
+            case identifier:  //contained in it's own scope (the if statement)
                 if( !(type_check_identifier(srcStr[curRIndex]) || type_check_numLiteral(srcStr[curRIndex])) || endOfFile){ //check if last char isnt identifier-char or number OR end of file
                     curType = unknown;
                     
@@ -180,25 +180,50 @@ void lexer_parse_string(const char *srcStr, uint srcStrLength, List *srcTokenLis
                     
                     (t->contents)[curTokenLength] = '\0';           //cap off string with null termination
 
-                    --curRIndex;
+                    --curRIndex;    //start next itteration at begining of following token
                     curLIndex = curRIndex;
                 }
             break;
 
-            case operator:
+            case operator:{ //contained in it's own scope
                 //Identify operator
                 curType = unknown;
-                char *op = operator_identify(srcStr + curLIndex, operatorTree);
-                if(op == NULL) logE("OPERATOR CAN'T BE IDENTIFIED HERE: %s", srcStr + curLIndex); //this is kind of lazy, but this error probably won't even happen
-                curRIndex += strlen(op)-2;
+                const char *op = operator_identify(srcStr + curLIndex, operatorTree);
+                if(op == NULL) logE("OPERATOR CAN'T BE IDENTIFIED HERE: %s", srcStr + curLIndex);
+                curRIndex += strlen(op)-2; //-2 because -1 for null terminator and -1 for putting curRIndex at end of operator
                 curLIndex = curRIndex;
 
                 //Append it to token list
                 Token *t = list_append(*srcTokenListPtr);
                 t->type = operator;
-                t->contents = op;
+                t->contents = (char *)op;   //discard const
+            }break;
+
+            case numLiteral:{ //contained in it's own scope
+                
+            }break;
+
+            //TODO maybe read string chars into list
+            case strLiteral:  //contained in it's own scope (the if statement)
+                if( (srcStr[curRIndex] == '\"' && srcStr[curRIndex-1] != '\\') || endOfFile){
+                    if(endOfFile) logE("STRING END BEFORE END OF FILE: %s", srcStr + curLIndex);
+
+                    curType = unknown;
+                    ++curLIndex;    //ignore first quote - last one already ignored
+                    curTokenLength = curRIndex - curLIndex;
+                    
+                    Token *t = list_append(*srcTokenListPtr);
+                    t->type = strLiteral;
+                    t->contents = list_create(char);         //malloc for text from src string and null termination char
+
+                    for(uint i=0; i < curTokenLength; ++i)
+                        *(char *)list_append(t->contents) = srcStr[curLIndex + i];     //copy identifier name from srcstr to token contents
+                    
+                    *(char *)list_append(t->contents) = '\0';           //cap off string with null termination
+
+                    curLIndex = curRIndex;
+                }
             break;
-        
         }
     }
 
@@ -235,8 +260,12 @@ void lexer_clean_up(uint numTokens, ...){
         List *srcTokenList = va_arg(args, List *);
         for(uint i=0; i < list_size(*srcTokenList); ++i){
             Token t = list_get(*srcTokenList, i, Token);
-            if(t.type != operator)
-                free(t.contents);
+            switch(t.type){
+                case identifier: free(t.contents); break;
+                case operator: /* DO NOTHING, OPERATORS ARE IN STATIC MEMORY */ break;
+                case numLiteral: /* TBD */; break;
+                case strLiteral: /* TBD */; break;
+            }
         }
     }
 

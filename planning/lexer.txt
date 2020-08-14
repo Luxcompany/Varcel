@@ -51,11 +51,10 @@ Token analysis type details      iden-char=abc...ABC...  number-char=123...  spe
             (
             )
             ,
-    numliteral      number-char*n  +  non-number-char(except . b x e)
+    numliteral      number-char*n  +  non-number-char(except . b x)
         decimal     3.14
         binary      0b00010110
         hex         0x4f4f3e
-        sci         10e100
     strliteral      quote + ... + quote(without backslash)
 
 -------------------------
