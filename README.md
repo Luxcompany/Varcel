@@ -3,11 +3,13 @@
 *note: Varcel is still in alpha; most features don't exist yet.*
 
 ## What's Varcel?
-Varcel is an open source, functional flavored, graphics-focused programmng language geared towards UI design, data visualization, and elegant data processing. As of now Varcel can be contained in **.vl** or **.varcel** files, and compiled via the command line (or an IDE-like application in the future that'll include debuging features). Varcel is first transpiled to C, then compiled into machine code by a regular C compiler (TCC used by default). Transpiling to c makes Varcel more platform independent (as any platform with a c compiler will also be able to compile Varcel), and allows compiled applications to run faster than they would if Varcel was an interpreted language.
+Varcel is an open source, platform-independent, functional flavored, graphics-focused programmng language geared towards UI design, data visualization, and general computation. As of now Varcel can be contained in **.vl** or **.varcel** files, and "executed" via the command line.
+
+"Execution" is an umbrella term that covers different methods of building/running Varcel code (e.g. compiling, interpreting, and transpiling). For instance, a Varcel program can be transpiled to JS for use on the web.
 
 ## How it works.
 
-**Details are being worked out in [planning file](planning/Varcel_DRAFT.txt).**
+**Details are being worked out in [planning folder](planning).**
 
 ## Using it with other languages.
 Varcel can be used alone, or in tandem with other languages. *Integration of Varcel and other languages hasn't been worked out yet, but the plan is something like the code c below:*
@@ -52,4 +54,4 @@ if(v_check_type(myVar, v_string))
 v_close(program); //ends program
 ```
 #
-Feel free to help out and make a suggestion (via issues), or (even better) a pull request!
+Feel free to help out and make a suggestion (via issues)!

@@ -196,10 +196,10 @@ void lexer_parse_string(const char *srcStr, uint srcStrLength, List *srcTokenLis
                 //Append it to token list
                 Token *t = list_append(*srcTokenListPtr);
                 t->type = operator;
-                t->contents = (char *)op;   //discard const
+                t->contents = (char *)op;   //discard const (janky)
             }break;
 
-            case numLiteral:{ //contained in it's own scope
+            case numLiteral:{ //contained in its own scope
                 
             }break;
 

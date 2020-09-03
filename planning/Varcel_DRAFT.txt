@@ -321,11 +321,12 @@ drawVecs [vec[1,2],vec[*1.1,-1]..vec[5,-2]] //this might be hard to impliment
 
 //fizzbuzz---------------------------------------------------
 
-fizz[int arr a] =
-        map a@i:
-        sizeof (b=concat[ a@i%3==0 ? "fizz" : "", a@i%5==0 ? "buzz" : ""]) ? b : a@i
+fizz[int a..] = [
+        map x in a |
+        (arrSize b = concat [x%3==0 ? "fizz" else "", x%5==0 ? "buzz" else ""]) == 0 ? x else b
+]
 
-fizz[ [1..100] ]
+fizz [1..100]
 
 //currying----------------------------------------------------
 
@@ -347,11 +348,15 @@ takeFrom[allNumbers, 3, 7] // [3,4,5,6,7]
 
 //how?	
 [1,2,3,4,5,6,7,8]
-toPointArr: [(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8)]
-toPointArr_inPlace: [(1,2),(2,4),(5,6),(7,8)]
+toPointArrEach: [(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8)]
+toPointArr: [(1,2),(2,4),(5,6),(7,8)]
 
 //filter keyword - removes elements where body isn't true
-filter v@i: v@i%2==0
+[filter x in v | x%2==0]
+
+//map x in array or array at i
+[map x**2 for x in arr]
+[map arr.i | i < size arr ? arr.(i+1) : arr.0]
 
 
 /*integration with c/c++? (via macros) (captures via shared memory)
@@ -364,3 +369,7 @@ VARCEL((varcel code), captures)
 
 */
 
+
+v==1? a else
+v==2? b else
+v==3? c else 0
