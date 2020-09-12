@@ -1,5 +1,4 @@
-#ifndef VARCEL_LOG_H_
-#define VARCEL_LOG_H
+#pragma once
 #include <stdio.h>
 
 #ifdef VARCEL_LOG_SHOW_DEBUG_
@@ -8,7 +7,6 @@
 #else
 #define logI(...)
 #define logW(...)
-#endif//LOG_DEBUG_
-#define logE(...) {fputs("[ERR] ", stderr); fprintf(stderr, __VA_ARGS__); fputc('\n', stderr);}
+#endif//VARCEL_LOG_SHOW_DEBUG_
 
-#endif
+#define logE(...) {fputs("[ERR] ", stderr); fprintf(stderr, __VA_ARGS__); fputc('\n', stderr);}

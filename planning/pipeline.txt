@@ -1,11 +1,11 @@
-Processes file                            Executes file
+Processes file                            builds/runs file
 
 (LEXER -> PARSER -> SEMANTIC-ANALYZER) -> EXECUTOR
 
 
 
 including byproducts:
-src -> lexer -> tokens -> parser -> AST -> SEMANTIC-ANALYZER -> action-tree -> executor
+src -> LEXER -> tokens -> PARSER -> ast -> SEMANTIC-ANALYZER -> action-tree -> EXECUTOR
 
 
 
