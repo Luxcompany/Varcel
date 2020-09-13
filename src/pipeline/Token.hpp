@@ -6,8 +6,7 @@ enum class TokenType{
     iden,       //identifier
     op,         //operator
     num,        //number literal
-    str,        //string literal
-    unknown
+    str        //string literal
 };
 
 class Token{

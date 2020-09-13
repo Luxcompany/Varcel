@@ -1,0 +1,217 @@
+//-VARCEL 1.0 DRAFT2-//
+
+//line comment
+
+/*
+multiline comment
+*/
+
+
+COMPILER MESSAGE FORMAT:
+[ERR] message\n
+[WARNING] message\n
+[INFO] message\n
+
+
+file extentions -- .VL .VARCEL -- VL prefered
+
+------------------------------------------------------------
+
+lexeme types:
+
+identifier
+operator
+number litteral
+string literal
+
+
+all operators:
+
++   ++
+-
+*   **
+/
+%
+
+=   ==   
+>        >=
+<        <=
+
+.   ..
+
+!
+    &&
+    ||
+    ^^
+
+seperators:
+(
+)
+[
+]
+,
+;
+?
+:
+
+
+keywords (including types):
+
+arr(n)  arrSize
+const   mut
+uses    usable     extern
+oftype  alias
+map     filter     foreach
+
+real    int
+lambda 
+string
+amb
+
+------------------------------------------------------------
+
+clarification for exotic/untraditional lexemes:
+
+mathematic operators can be applied on two numbers or an array and a number -- applies operation to each element:
+    num1 + num2     num1 - num2     etc
+    array + num     array ** num    etc
+
+++          concatinates two arrays - a1 ++ a2 -OR- appends item to array - a1 ++ num
+**          exponentiates - num1 ** num2 = num1 to the power of num2
+.           accessor - access elements of an array -- array.index
+..          either:
+    array initialization interpolation -- [1..10]
+    variadic lambdas -- f(param..)
+
+;           used to chain consecutive procedural statements -- final statement is returned when used in lambda
+    statement1 ; statement2
+    f(x) = (num = x ; num * 2)
+
+?:  ternary operator
+
+type keywords and type modifiers explained in "type logic"
+uses, usable, and extern explained in "using"
+
+map, filter, and foreach:
+
+statements that use these keywords don't modify existing arrays - rather they evaluate to an array copy where the statement has been applied
+
+map             apply statement to each element of an array
+filter          keeps elements that satisfy a condition, removes the rest
+foreach         loops through indicies of an array -- this operates on elements' indicies, unlike the previous keywords which operate on elements
+
+real n array map n*3
+int x array filter x%2==0
+i array foreach array.(i+1) = 0         index variable can only be int
+
+int x array1 : int y array2 map x*y     map can combine arrays to itterate - only applicable if arrays are of equal length
+
+------------------------------------------------------------
+
+type logic:
+
+standard types:
+real        floating point number on the "real" numberline -- E.G.  1, 55, 3.1415, -50000.4
+int
+lambda      can be passed as variables -- passed by reference
+string      string of text characters -- passed by reference
+amb         ambiguous type -- default type if type can't be inferred -- lambda parameters with amb type can take values of all types
+
+type modifiers:
+arr         when following a type name, it signifies an array of that type -- passed by reference -- size can be obtained by prepending "arrSize" to array variable
+arr(n)      a number following "arr" indicates that an array should be of a fixed size -- E.G. arr6 is a 6 element array -- parentheses optional - arr(7)  arr3  arr(arrSize anotherArray)
+const       indicates that a type can't be changed after declaration or first assignment -- arr, lambda, amb, and string are const by default
+mut         indicates that a type can be changed after declaration -- real, and int are mut by default
+
+other type things:
+oldType alias newType      creates a new type with the same properties as oldType
+arr.num alias indexName    creates an alias for an indexing an array with a custom index name -- if "point" is an array of 3 coords, then "point.0 alias x" will allow array variables of type point to acess the 0th element via "var.x"
+oftype      used to determine/check a variable's type -- (var typeof real) evaluates to true if var is a real, false otherwise
+
+------------------------------------------------------------
+
+lambda details:
+
+declaration:
+name(param, ...) = body             param type is amb by default
+name(type param, ...) = body        forces input to be of a specific type
+_(param, ...) = body                anonymous lambda, can only be executed if returned by another lambda or passed as a parameter
+name(param = defaultValue) = body   default lambda parameters are optional upon execution
+
+execution:
+name(params)
+name param      parentheses optional for one parameter
+
+details:
+when executed, a lambda returns the evaluation of its body -- E.G.  f() = (3==3)  ->  f() returns true
+
+variadic lambdas -- f(param..) -- take a variable number of arguments;
+arguments are accessed in body via treating the variadic parameter as an array;
+any number of arguments can come before a variadic argument, but none can come after
+
+------------------------------------------------------------
+
+variable details:
+
+declaration:
+name = value                                variable type is infered based on the type of value
+type name = value                           explicit statement of variables type upon declaration
+modifier(s) type(optional) name = value
+
+arr(optional) name = [1..5]                 when declaring arrays, the ".." operator can be used to calculate interpolated values
+arr real name = [1, +.1 .. 10]              different methods of interpolation can be used by specifying a second which specifies what to do between consecutive elements; in this case, there is a difference of .1 between elements  (E.G.  1, 1.1, 1.2, ... 10)
+name = [1, *2 .. 10]                        results in [1, 2, 4, 8] -- the highest specified value is never passed, but it may not be reached (such as in this case)
+
+------------------------------------------------------------
+
+using:
+
+"using" can give access to another file's variables/lambdas
+identifiers have to be made public by using the "usable" keyword
+
+uses "filename.vl"     imports usable variables/lambdas to be used as if they were already defined
+
+f(x)                   this lambda can't be used in another file
+usable f(x)            this lambda can be used in another file
+
+extern:
+    lambdas with an external implimentaion in another language are specified with extern
+
+name(param, ...) = extern
+
+------------------------------------------------------------
+
+standard libs:
+
+///////////////////////
+std.vl - used by default
+
+sum(a)
+product(a)
+
+shift(a, n)
+takeFrom(array, a, b)
+
+log(message)
+warn(message)
+error(message)
+
+int alias bool
+const int true = 1
+const int false = 0
+
+///////////////////////
+math.vl
+
+real pi
+real e
+
+sin(x)
+cos(x)
+tan(x)
+asin(x)
+acos(x)
+atan(x)
+atan2(x, y)
+log(b, x)
+ln(x)
