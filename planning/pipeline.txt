@@ -23,4 +23,4 @@ EXECUTOR
 
 
 
-Made so each stage can be swaped with another version of itself - mostly the executor
+Made so each stage can be swaped with another version of itself - specifically the executor

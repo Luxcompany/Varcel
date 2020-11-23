@@ -60,10 +60,12 @@ keywords (including types):
 arr(n)  arrSize
 const   mut
 uses    usable     extern
-oftype  alias
+alias
 map     filter     foreach
 
-real    int
+real    imaginary  complex
+int
+point
 lambda 
 string
 amb
@@ -83,9 +85,12 @@ mathematic operators can be applied on two numbers or an array and a number -- a
     array initialization interpolation -- [1..10]
     variadic lambdas -- f(param..)
 
-;           used to chain consecutive procedural statements -- final statement is returned when used in lambda
-    statement1 ; statement2
-    f(x) = (num = x ; num * 2)
+,           used to chain consecutive procedural statements -- final statement is returned when used in lambda
+    statement1 , statement2
+    f(x) = (num = x , num * 2)
+
+    if last statement is a hard-coded number, then that nth statement will be returned - 0 is first statement
+    f(x)= (num=x, num*2, r(x), 1)
 
 ?:  ternary operator
 
@@ -112,21 +117,23 @@ type logic:
 
 standard types:
 real        floating point number on the "real" numberline -- E.G.  1, 55, 3.1415, -50000.4
+imaginary   same as real, but on the "imaginary" numberline -- imaginary numbers followed by i - 4.3i
+complex     a real number plus an imaginary number
 int
+point(n)    a group of n numbers -- formated as (x, y, ...)
 lambda      can be passed as variables -- passed by reference
 string      string of text characters -- passed by reference
 amb         ambiguous type -- default type if type can't be inferred -- lambda parameters with amb type can take values of all types
 
 type modifiers:
 arr         when following a type name, it signifies an array of that type -- passed by reference -- size can be obtained by prepending "arrSize" to array variable
-arr(n)      a number following "arr" indicates that an array should be of a fixed size -- E.G. arr6 is a 6 element array -- parentheses optional - arr(7)  arr3  arr(arrSize anotherArray)
+arr(n)      a number following "arr" indicates that an array should be of a fixed size -- E.G. arr6 is a 6 element array -- arr(7)  arr(arrSize anotherArray)
 const       indicates that a type can't be changed after declaration or first assignment -- arr, lambda, amb, and string are const by default
 mut         indicates that a type can be changed after declaration -- real, and int are mut by default
 
 other type things:
 oldType alias newType      creates a new type with the same properties as oldType
-arr.num alias indexName    creates an alias for an indexing an array with a custom index name -- if "point" is an array of 3 coords, then "point.0 alias x" will allow array variables of type point to acess the 0th element via "var.x"
-oftype      used to determine/check a variable's type -- (var typeof real) evaluates to true if var is a real, false otherwise
+== is used to determine/check a variable's type -- (var == real) evaluates to true if var is a real, false otherwise
 
 ------------------------------------------------------------
 
@@ -162,6 +169,13 @@ arr(optional) name = [1..5]                 when declaring arrays, the ".." oper
 arr real name = [1, +.1 .. 10]              different methods of interpolation can be used by specifying a second which specifies what to do between consecutive elements; in this case, there is a difference of .1 between elements  (E.G.  1, 1.1, 1.2, ... 10)
 name = [1, *2 .. 10]                        results in [1, 2, 4, 8] -- the highest specified value is never passed, but it may not be reached (such as in this case)
 
+------------------------------------------------------------
+
+class details:
+
+declaration:
+Name(params) = [instanceField1:x, ...]      classes behave as their own type of Name -- members specified in square brackets - var:value  or  lambdas as normal:  f(x) = body
+obj = Name(params)
 ------------------------------------------------------------
 
 using:
@@ -215,3 +229,8 @@ atan(x)
 atan2(x, y)
 log(b, x)
 ln(x)
+
+Vec(x, y, ..)
+Mat(mat11, mat21, ..)
+MatColMajor(Vec, Vec, ..)
+MatRowMajor(Vec, Vec, ..)

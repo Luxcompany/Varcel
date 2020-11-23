@@ -74,7 +74,6 @@ namespace Lexer{
                     uint srcStringBeginIndex = srcStringIndex;
                     while(identifierChars.find(srcString[srcStringIndex]) != std::string::npos)
                         ++srcStringIndex;
-
                     srcTokens.push_back( Token(TokenType::iden, srcString.substr(srcStringBeginIndex, srcStringIndex - srcStringBeginIndex)) );
                 }break;
 
